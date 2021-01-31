@@ -6,7 +6,7 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import r2_score
 from sklearn.svm import SVR
 
-pd.set_option('display.max_columns', None)
+pd.set_option("display.max_columns", None)
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -48,17 +48,25 @@ def regress(x_vars, y_var, filepath):
         svr_predictions = svr.predict(x_test)
         lr_r2_score = r2_score([el[0] for el in y_test], lr_predictions)
         svr_r2_score = r2_score([el[0] for el in y_test], svr_predictions)
-        results[pos] = {"lr_r2_score": lr_r2_score,
-                        "svr_r2_score": svr_r2_score,
-                        "lr_coef": lr_fit.coef_.tolist(),
-                        "lr_int": int(lr_fit.intercept_)}
+        results[pos] = {
+            "lr_r2_score": lr_r2_score,
+            "svr_r2_score": svr_r2_score,
+            "lr_coef": lr_fit.coef_.tolist(),
+            "lr_int": int(lr_fit.intercept_),
+        }
 
     with open(filepath, "w") as json_f:
         json.dump(results, json_f)
 
 
-regress(["Wt", "40yd", "Vertical", "Broad Jump", "3Cone", "Shuttle", "Height (cm)", "Pick"],
-        "5AV", os.path.join(dir_path, "results", "results.json"))
+regress(
+    ["Wt", "40yd", "Vertical", "Broad Jump", "3Cone", "Shuttle", "Height (cm)", "Pick"],
+    "5AV",
+    os.path.join(dir_path, "results", "results.json"),
+)
 regress(["Pick"], "5AV", os.path.join(dir_path, "results", "just_pick.json"))
-regress(["Wt", "40yd", "Vertical", "Broad Jump", "3Cone", "Shuttle", "Height (cm)"], "Pick",
-        os.path.join(dir_path, "results", "results.json"))
+regress(
+    ["Wt", "40yd", "Vertical", "Broad Jump", "3Cone", "Shuttle", "Height (cm)"],
+    "Pick",
+    os.path.join(dir_path, "results", "results.json"),
+)

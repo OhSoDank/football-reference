@@ -32,8 +32,8 @@ def get_height(row):
     """
     match = re.search(r"(\d)-(\d){1,2}", str(row["Ht"]))
     if match:
-        inches = int(match.group(2)) + 12*int(match.group(1))
-        return inches*2.54
+        inches = int(match.group(2)) + 12 * int(match.group(1))
+        return inches * 2.54
     return np.NaN
 
 
@@ -81,16 +81,16 @@ def scrape_data():
         url = f"https://www.pro-football-reference.com/draft/{year}-combine.htm"
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
-        parsed_table = soup.find_all('table')[0]
+        parsed_table = soup.find_all("table")[0]
         df = pd.read_html(url)[0]
         url_mapping = dict()
         # Parse the BeautifulSoup data to construct a mapping of player name to
         # pro-football-reference URL extension.
-        for i, row in enumerate(parsed_table.find_all('tr')[0:]):
-            dat = row.find('th', attrs={'data-stat': 'player'})
+        for i, row in enumerate(parsed_table.find_all("tr")[0:]):
+            dat = row.find("th", attrs={"data-stat": "player"})
             try:
                 name = dat.a.get_text()
-                stub = dat.a.get('href')
+                stub = dat.a.get("href")
                 url_mapping[name] = stub
             except:
                 pass
@@ -114,8 +114,10 @@ def process_main_df(df):
     """
     df["Pick"] = df.apply(lambda row: extract_pick(row), axis="columns")
     df["Height (cm)"] = df.apply(lambda row: get_height(row), axis="columns")
-    df = df.drop(labels=["School", "College", "Drafted (tm/rnd/yr)", "Ht", "Bench"],
-                 axis="columns")
+    df = df.drop(
+        labels=["School", "College", "Drafted (tm/rnd/yr)", "Ht", "Bench"],
+        axis="columns",
+    )
     df = df.dropna()
     for col in ["Wt", "40yd", "Vertical", "Broad Jump", "3Cone", "Shuttle"]:
         df[col] = df[col].astype(float)
@@ -141,12 +143,15 @@ def segment(df):
     ret["S"] = df[df["Pos"] == "S"]
     ret["CB"] = df[df["Pos"] == "CB"]
     ret["LB"] = df[(df["Pos"] == "ILB") | ((df["Pos"] == "OLB") & (df["Wt"] < 247))]
-    ret["Edge"] = df[((df["Pos"] == "OLB") & (df["Wt"] >= 247)) | ((df["Pos"] == "DE") & (df["Wt"] < 277))]
+    ret["Edge"] = df[
+        ((df["Pos"] == "OLB") & (df["Wt"] >= 247))
+        | ((df["Pos"] == "DE") & (df["Wt"] < 277))
+    ]
     ret["DL"] = df[(df["Pos"] == "DT") | ((df["Pos"] == "DE") & (df["Wt"] >= 277))]
     return ret
 
 
-pd.set_option('display.max_columns', None)
+pd.set_option("display.max_columns", None)
 dir_path = os.path.dirname(os.path.realpath(__file__))
 main = scrape_data()
 main = process_main_df(main)
